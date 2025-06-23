@@ -1,0 +1,120 @@
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+
+# P1. Retornar el nombre de la persona y de la universidad de las personas educadas en una universidad chilena
+SELECT DISTINCT ?Nombre ?Universidad
+WHERE {
+  ?hum wdt:P31 wd:Q5.
+  ?hum wdt:P69 ?uni.
+  ?uni wdt:P17 wd:Q298.
+
+  ?uni rdfs:label ?Universidad.
+  ?hum rdfs:label ?Nombre.
+
+  FILTER(LANG(?Universidad) = "es").
+  FILTER(LANG(?Nombre) = "es").
+}
+
+# P2. Retornar el nombre de la persona, de la universidad, y de su(s) partido(s) de las personas educadas en universidades chilenas que son políticos (tienen la ocupación de ser político) y miembros de un partido político
+SELECT DISTINCT ?Nombre ?Universidad ?Partido
+WHERE {
+  ?hum wdt:P31 wd:Q5.
+  ?hum wdt:P69 ?uni.
+  ?uni wdt:P17 wd:Q298.
+  ?hum wdt:P106 wd:Q82955.
+  ?hum wdt:P102 ?parti.
+
+  ?uni rdfs:label ?Universidad.
+  ?hum rdfs:label ?Nombre.
+  ?parti rdfs:label ?Partido.
+
+  FILTER(LANG(?Universidad) = "es").
+  FILTER(LANG(?Nombre) = "es").
+  FILTER(LANG(?Partido) = "es").
+}
+
+# P3. Retornar el nombre de la obra, del autor y de la universidad de las obras literarias (instancias de Q7725634 y sus subclases) escritas por personas educadas en o empleados por una universidad chilena
+SELECT DISTINCT ?Obra ?Autor ?Universidad WHERE{
+  ?obra wdt:P31/wdt:P279* wd:Q7725634. 
+  ?obra wdt:P50 ?autor.
+  {
+    ?autor wdt:P31 wd:Q5.
+    ?autor wdt:P69 ?uni.
+    ?uni wdt:P17 wd:Q298.
+    ?uni wdt:P31/wdt:P279* wd:Q3918.
+  }
+  UNION
+  {
+    ?autor wdt:P31 wd:Q5.
+    ?autor wdt:P108 ?uni.
+    ?uni wdt:P17 wd:Q298.
+    ?uni wdt:P31/wdt:P279* wd:Q3918.
+  }
+  
+  ?uni rdfs:label ?Universidad.
+  ?autor rdfs:label ?Autor.
+  ?obra rdfs:label ?Obra.
+
+  FILTER(LANG(?Universidad) = "es").
+  FILTER(LANG(?Autor) = "es").
+  FILTER(LANG(?Obra) = "es").
+}
+
+# P4. Retornar el nombre de la persona y de la universidad de las mujeres educadas en una universidad chilena que son músicas o cantantes (tienen la ocupación de ser músico o cantante)
+SELECT ?Nombre ?Universidad WHERE{
+  ?hum wdt:P31 wd:Q5.
+  ?hum wdt:P21 wd:Q6581072.
+  ?hum wdt:P69 ?uni.
+  ?uni wdt:P17 wd:Q298.
+  {?hum wdt:P106 wd:Q177220.}
+  UNION
+  {?hum wdt:P106 wd:Q639669.}
+  
+  ?uni rdfs:label ?Universidad.
+  ?hum rdfs:label ?Nombre.
+
+  FILTER(LANG(?Universidad) = "es").
+  FILTER(LANG(?Nombre) = "es").
+}
+
+# P5. Retornar el nombre de la persona, de la universidad, y del premio de personas educadas en universidades chilenas que han ganado algún Premio Nobel o algún Premio Oscar.
+SELECT DISTINCT ?Nombre ?Universidad ?Premio WHERE {
+  ?hum wdt:P31 wd:Q5.
+  ?hum wdt:P69 ?uni.
+  ?uni wdt:P17 wd:Q298.
+  ?uni wdt:P31/wdt:P279* wd:Q3918.
+  ?hum wdt:P166 ?premio.
+
+  ?premio wdt:P31/wdt:P279* ?tipoPremio.
+  VALUES ?tipoPremio { wd:Q7191 wd:Q19020 }
+
+  ?hum rdfs:label ?Nombre.
+  ?uni rdfs:label ?Universidad.
+  ?premio rdfs:label ?Premio.
+
+  FILTER(LANG(?Nombre) = "es").
+  FILTER(LANG(?Universidad) = "es").
+  FILTER(LANG(?Premio) = "es").
+}
+
+# P6. Retornar el nombre de la película, del director, de la universidad; la fecha de estreno de la película; y, si está disponible, el identificador de IMDb de la película de films dirigidas por personas educadas en universidades chilenas
+#     Ordenar los resultados por fecha (el más reciente primero)
+SELECT DISTINCT ?Película ?Director ?Universidad ?Fecha_estreno ?IMDb WHERE {
+  ?peli wdt:P31 wd:Q11424.           
+  ?peli wdt:P57 ?dir.                
+  ?dir wdt:P69 ?uni.                 
+  ?uni wdt:P17 wd:Q298.              
+  ?uni wdt:P31/wdt:P279* wd:Q3918.   
+
+  ?peli rdfs:label ?Película.
+  ?dir rdfs:label ?Director.
+  ?uni rdfs:label ?Universidad.
+
+  OPTIONAL { ?peli wdt:P577 ?Fecha_estreno. }
+  OPTIONAL { ?peli wdt:P345 ?IMDb. }
+
+  FILTER(LANG(?Película) = "es").
+  FILTER(LANG(?Director) = "es").
+  FILTER(LANG(?Universidad) = "es").
+}
+ORDER BY DESC(?Fecha_estreno)
