@@ -1,1 +1,25 @@
-multimedia-retrieval/T1/datasets/*
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+# Jupyter
+.ipynb_checkpoints/
+# R
+.Rhistory
+.RData
+
+# Data (general)
+**/datasets/*
+
+# Logs and env
+*.log
+.env
